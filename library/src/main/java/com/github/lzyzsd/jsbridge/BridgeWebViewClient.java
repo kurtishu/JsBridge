@@ -13,12 +13,16 @@ import java.net.URLDecoder;
 public class BridgeWebViewClient extends WebViewClient {
     private BridgeWebView webView;
 
-    public BridgeWebViewClient(BridgeWebView webView) {
-        this.webView = webView;
+    public void setWebView(BridgeWebView bridgeWebView) {
+        this.webView = bridgeWebView;
+    }
+
+    public boolean shouldOverrideUrlLoadingForBridgeWebViewClient(WebView view, String url) {
+        return false;
     }
 
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+    public final boolean shouldOverrideUrlLoading(WebView view, String url) {
         try {
             url = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -32,7 +36,7 @@ public class BridgeWebViewClient extends WebViewClient {
             webView.flushMessageQueue();
             return true;
         } else {
-            return super.shouldOverrideUrlLoading(view, url);
+            return shouldOverrideUrlLoadingForBridgeWebViewClient(view, url);
         }
     }
 
@@ -41,9 +45,12 @@ public class BridgeWebViewClient extends WebViewClient {
         super.onPageStarted(view, url, favicon);
     }
 
+    public void onPageFinishedForBridgeWebViewClient(WebView view, String url) {
+    }
+
     @Override
-    public void onPageFinished(WebView view, String url) {
-        super.onPageFinished(view, url);
+    public final void onPageFinished(WebView view, String url) {
+        onPageFinishedForBridgeWebViewClient(view, url);
 
         if (BridgeWebView.toLoadJs != null) {
             BridgeUtil.webViewLoadLocalJs(view, BridgeWebView.toLoadJs);

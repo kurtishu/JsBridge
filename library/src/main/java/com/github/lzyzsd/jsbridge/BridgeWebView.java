@@ -76,10 +76,20 @@ public class BridgeWebView extends WebView implements WebViewJavascriptBridge {
 	}
 
     protected BridgeWebViewClient generateBridgeWebViewClient() {
-        return new BridgeWebViewClient(this);
+        return new BridgeWebViewClient();
     }
 
-	void handlerReturnData(String url) {
+    @Override
+    public void setWebViewClient(WebViewClient client) {
+        if (client instanceof BridgeWebViewClient) {
+            ((BridgeWebViewClient) client).setWebView(this);
+            super.setWebViewClient(client);
+        } else {
+            throw new IllegalArgumentException("Please use BridgeWebViewClient instead of WebViewClient");
+        }
+    }
+
+    void handlerReturnData(String url) {
 		String functionName = BridgeUtil.getFunctionFromReturnUrl(url);
 		CallBackFunction f = responseCallbacks.get(functionName);
 		String data = BridgeUtil.getDataFromReturnUrl(url);
